@@ -1,5 +1,4 @@
 import appAssert from "../utils/appAssert.js";
-import { UNAUTHORIZED } from "../constants/http.js";
 import { verifyToken } from "../utils/jwt.js";
 
 
@@ -8,7 +7,7 @@ const authenticate = (req, res, next) => {
   const accessToken = req.cookies.accessToken;
   appAssert(
     accessToken,
-    UNAUTHORIZED,
+    401,
     "Not authorized",
     "InvalidAccessToken"
   );
@@ -16,7 +15,7 @@ const authenticate = (req, res, next) => {
   const { error, payload } = verifyToken(accessToken);
   appAssert(
     payload,
-    UNAUTHORIZED,
+    401,
     error === "jwt expired" ? "Token expired" : "Invalid token",
     "InvalidAccessToken"
   );

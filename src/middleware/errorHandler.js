@@ -1,6 +1,5 @@
 import { z } from "zod";
 import AppError from "../utils/AppError.js";
-import { BAD_REQUEST, INTERNAL_SERVER_ERROR } from "../constants/http.js";
 import { REFRESH_PATH, clearAuthCookies } from "../utils/cookies.js";
 
 const handleZodError = (res, error) => {
@@ -9,7 +8,7 @@ const handleZodError = (res, error) => {
     message: err.message,
   }));
 
-  return res.status(BAD_REQUEST).json({
+  return res.status(400).json({
     errors,
     message: error.message,
   });
@@ -37,7 +36,7 @@ const errorHandler = (error, req, res, next) => {
     return handleAppError(res, error);
   }
 
-  return res.status(INTERNAL_SERVER_ERROR).send("Internal server error");
+  return res.status(500).send("Internal server error");
 };
 
 export default errorHandler;

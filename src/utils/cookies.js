@@ -1,22 +1,20 @@
-import { fifteenMinutesFromNow, thirtyDaysFromNow } from "./date.js";
-
 export const REFRESH_PATH = "/auth/refresh";
 
-const defaults = {
+
+
+export const getAccessTokenCookieOptions = () => ({
   sameSite: "strict",
   httpOnly: true,
   secure: true,
-};
-
-export const getAccessTokenCookieOptions = () => ({
-  ...defaults,
-  expires: fifteenMinutesFromNow(),
+  expires: Date.now() + 15 * 60 * 1000,
 });
 
 export const getRefreshTokenCookieOptions = () => ({
-  ...defaults,
-  expires: thirtyDaysFromNow(),
-  path: REFRESH_PATH,
+  sameSite: "strict",
+  httpOnly: true,
+  secure: true,
+  expires: Date.now() + 30 * 24 * 60 * 60 * 1000,
+  path: "/auth/refresh",
 });
 
 export const setAuthCookies = ({ res, accessToken, refreshToken }) =>

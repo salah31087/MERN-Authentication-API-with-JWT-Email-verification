@@ -1,8 +1,6 @@
-import { CONFLICT, NOT_FOUND, UNAUTHORIZED } from "../constants/http.js";
 import UserModel from "../models/user.model.js";
 import appAssert from "../utils/appAssert.js";
 import { signToken, verifyToken } from "../utils/jwt.js";
-
 const refreshTokenSignOptions = {
   expiresIn: "30d",
   secret: process.env.JWT_REFRESH_SECRET,
@@ -10,7 +8,7 @@ const refreshTokenSignOptions = {
 
 export const createAccount = async ({ email, password }) => {
   const existingUser = await UserModel.findOne({ email });
-  appAssert(!existingUser, CONFLICT, "Email already exists");
+  appAssert(!existingUser, 409, "Email already exists");
 
   const user = await UserModel.create({
     email,
@@ -37,10 +35,10 @@ export const createAccount = async ({ email, password }) => {
 
 export const loginUser = async ({ email, password }) => {
   const user = await UserModel.findOne({ email });
-  appAssert(user, NOT_FOUND, "User not found");
+  appAssert(user, 404, "User not found");
 
   const isValidPassword = await user.comparePassword(password);
-  appAssert(isValidPassword, UNAUTHORIZED, "Invalid password");
+  appAssert(isValidPassword, 401, "Invalid password");
 
   const accessToken = signToken({
     userId: user._id,
@@ -63,11 +61,11 @@ export const refreshUserAccessToken = async (refreshToken) => {
   const { payload } = verifyToken(refreshToken, {
     secret: refreshTokenSignOptions.secret,
   });
-  appAssert(payload, UNAUTHORIZED, "Invalid refresh token");
-  appAssert(payload.userId, UNAUTHORIZED, "Invalid refresh token payload");
+  appAssert(payload, 401, "Invalid refresh token");
+  appAssert(payload.userId, 401, "Invalid refresh token payload");
 
   const user = await UserModel.findById(payload.userId);
-  appAssert(user, UNAUTHORIZED, "User not found");
+  appAssert(user, 401, "User not found");
 
   const accessToken = signToken({
     userId: user._id,
@@ -81,11 +79,11 @@ export const refreshUserAccessToken = async (refreshToken) => {
 
   const newRefreshToken = shouldRefresh
     ? signToken(
-      {
-        userId: user._id,
-      },
-      refreshTokenSignOptions
-    )
+        {
+          userId: user._id,
+        },
+        refreshTokenSignOptions
+      )
     : undefined;
 
   return {
